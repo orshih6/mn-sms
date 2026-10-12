@@ -1,0 +1,61 @@
+{
+  "name": "mn-sms",
+  "version": "0.1.0",
+  "description": "Send SMS through the Mongolian mobile operators' own gateways (Unitel, Mobicom, Skytel, G-Mobile), routed by the recipient's number. Zero dependencies.",
+  "keywords": [
+    "sms",
+    "mongolia",
+    "unitel",
+    "mobicom",
+    "skytel",
+    "gmobile",
+    "otp"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orshih6/mn-sms.git"
+  },
+  "homepage": "https://github.com/orshih6/mn-sms#readme",
+  "bugs": {
+    "url": "https://github.com/orshih6/mn-sms/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

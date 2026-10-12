@@ -1,0 +1,72 @@
+### The four SMS gateways, called DIRECTLY
+#
+# The raw requests this package builds, written out so a gateway can be probed
+# with no code at all. For the VS Code REST Client extension; credentials are
+# read from a local `.env` through `{{$dotenv …}}`, so no secret is typed here.
+# In JetBrains, swap them for an `http-client.private.env.json` entry.
+#
+# ⛔ THESE ARE REAL SENDS. Every 8-digit Mongolian number belongs to a real
+#    subscriber. Fill `@to_*` below with a SIM YOU HOLD before firing anything.
+#    The placeholders are deliberately invalid so an unedited run cannot deliver.
+#
+# ⛔ EVERY GATEWAY AUTHENTICATES ON THE CALLING IP. From a machine that is not
+#    on your allowlist, expect: Skytel `ERROR: 202 not authenticated`,
+#    G-Mobile `error3`, Mobicom a refusal. That is the allowlist, not a broken
+#    request.
+#
+# THE VERDICT IS THE BODY, not the status: three of the four answer HTTP 200
+# for a refusal. Read the text, not the status line.
+
+@to_unitel   = 88XXXXXX
+@to_skytel   = 91XXXXXX
+@to_mobicom  = 99XXXXXX
+@to_gmobile  = 98XXXXXX
+
+# "Tanii kod: 1234" / "Таны код: 1234"
+@text_latin    = Tanii%20kod%3A%201234
+@text_cyrillic = %D0%A2%D0%B0%D0%BD%D1%8B%20%D0%BA%D0%BE%D0%B4%3A%201234
+
+
+### 1. UNITEL — POST, JSON body, API key in `enc`. Verdict: HTTP status.
+
+# @name unitel_send
+POST https://pn.unitel.mn/api/message/send/sms?enc={{$dotenv UNITEL_API_KEY}}
+content-type: application/json
+
+{
+  "to": "{{to_unitel}}",
+  "message": "Таны код: 1234"
+}
+
+
+### 2a. SKYTEL, Latin → /pushsms. Verdict: `OK` or `ERROR: <code> <reason>`.
+
+# @name skytel_send_latin
+GET https://smsgw.skytel.mn/SMSGW-war/pushsms?id={{$dotenv SKYTEL_ID}}&src={{$dotenv SKYTEL_SRC}}&dest={{to_skytel}}&text={{text_latin}}
+
+### 2b. SKYTEL, Cyrillic → /unicode (the same text on /pushsms arrives as mojibake)
+
+# @name skytel_send_unicode
+GET https://smsgw.skytel.mn/SMSGW-war/unicode?id={{$dotenv SKYTEL_ID}}&src={{$dotenv SKYTEL_SRC}}&dest={{to_skytel}}&text={{text_cyrillic}}
+
+
+### 3a. MOBICOM, Latin. Plain HTTP. Verdict: the bare word `Sent`.
+
+# @name mobicom_send_latin
+GET {{$dotenv MOBICOM_BASE_URL}}/smsmt/mt?servicename={{$dotenv MOBICOM_SERVICE_NAME}}&username={{$dotenv MOBICOM_USERNAME}}&from={{$dotenv MOBICOM_FROM}}&to={{to_mobicom}}&msg={{text_latin}}
+
+### 3b. MOBICOM, Cyrillic — same path, UTF-8 percent-encoded
+
+# @name mobicom_send_cyrillic
+GET {{$dotenv MOBICOM_BASE_URL}}/smsmt/mt?servicename={{$dotenv MOBICOM_SERVICE_NAME}}&username={{$dotenv MOBICOM_USERNAME}}&from={{$dotenv MOBICOM_FROM}}&to={{to_mobicom}}&msg={{text_cyrillic}}
+
+
+### 4a. G-MOBILE, Latin. Plain HTTP. Verdict: `0: Accepted for delivery` or `errorN`.
+
+# @name gmobile_send_latin
+GET http://sms-special.gmobile.mn/cgi-bin/sendsms?username={{$dotenv GMOBILE_USERNAME}}&password={{$dotenv GMOBILE_PASSWORD}}&from={{$dotenv GMOBILE_FROM}}&to={{to_gmobile}}&text={{text_latin}}
+
+### 4b. G-MOBILE, Cyrillic — same path, UTF-8 percent-encoded
+
+# @name gmobile_send_cyrillic
+GET http://sms-special.gmobile.mn/cgi-bin/sendsms?username={{$dotenv GMOBILE_USERNAME}}&password={{$dotenv GMOBILE_PASSWORD}}&from={{$dotenv GMOBILE_FROM}}&to={{to_gmobile}}&text={{text_cyrillic}}
