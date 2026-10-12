@@ -240,9 +240,10 @@ npm version patch     # bumps package.json, commits, tags
 git push --follow-tags
 ```
 
-The workflow needs an `NPM_TOKEN` repository secret (an npm automation token with publish
-rights). It publishes with [provenance](https://docs.npmjs.com/generating-provenance-statements),
-which npm only accepts from a public repository.
+There is no token to manage: the package's settings on npmjs.com name this repository and
+`publish.yml` as its [trusted publisher](https://docs.npmjs.com/trusted-publishers), and the
+workflow authenticates through GitHub's OIDC. Renaming the workflow file or the repository
+means updating that setting first.
 
 ## License
 
