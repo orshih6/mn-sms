@@ -1,6 +1,6 @@
 {
   "name": "mn-sms",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Send SMS through the Mongolian mobile operators' own gateways (Unitel, Mobicom, Skytel, G-Mobile), routed by the recipient's number. Zero dependencies.",
   "keywords": [
     "sms",
