@@ -26,4 +26,4 @@ jobs:
       - run: npm ci
       # prepublishOnly runs typecheck, tests and build. Provenance is attached
       # automatically when publishing through a trusted publisher.
-      - run: npm publish --access public
+      - run: npm publish --access public --loglevel verbose
