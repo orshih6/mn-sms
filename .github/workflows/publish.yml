@@ -1,0 +1,30 @@
+name: Publish
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # npm provenance
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Tag must match package.json
+        run: |
+          version="v$(node -p "require('./package.json').version")"
+          if [ "$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json $version"
+            exit 1
+          fi
+      - run: npm ci
+      # prepublishOnly runs typecheck, tests and build.
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

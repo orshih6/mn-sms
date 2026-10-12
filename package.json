@@ -40,6 +40,7 @@
     "dist",
     "docs",
     "README.md",
+    "README.mn.md",
     "LICENSE"
   ],
   "sideEffects": false,

@@ -1,5 +1,7 @@
 # mn-sms
 
+**English** · [Монгол](README.mn.md)
+
 Send SMS through the Mongolian mobile operators' own gateways — **Unitel**, **Mobicom**,
 **Skytel** and **G-Mobile** — from one client. You give it a number and a message; it works
 out which operator owns the number and calls that operator's gateway.
@@ -115,6 +117,35 @@ ported-number database to check, so when you know the real operator, say so:
 await sms.send({ to: "99112233", message: "…", operator: "unitel" });
 ```
 
+### Message length and cost
+
+A single SMS holds **160** Latin characters but only **70** once it contains one Cyrillic
+letter, and a longer message is split into parts that are each billed. Two helpers deal
+with that. Neither is applied by `send()` — the text you pass is the text that is sent.
+
+```ts
+import { countSegments, toLatin } from "mn-sms";
+
+countSegments("Сайн байна уу? Таны захиалга баталгаажлаа. Хүргэлт маргааш 14 цагт очно. Баярлалаа!");
+// { encoding: "UCS-2", length: 83, segments: 2, perSegment: 67 }
+
+const text = toLatin("Сайн байна уу? Таны захиалга баталгаажлаа. Хүргэлт маргааш 14 цагт очно. Баярлалаа!");
+// "Sain baina uu? Tanii zahialga batalgaajlaa. Hurgelt margaash 14 tsagt ochno. Bayarlalaa!"
+countSegments(text);
+// { encoding: "GSM-7", length: 88, segments: 1, perSegment: 160 }
+
+await sms.send({ to: "99112233", message: text });
+```
+
+`toLatin` writes Mongolian the way it is commonly typed in SMS (`ө` and `ү` → `u`,
+`ы` → `ii`, `х` → `h`), and also replaces the punctuation that silently forces the
+expensive encoding: curly quotes, long dashes, `…`, `№`, `₮`. Pass `{ map: { ө: "o" } }`
+to change a spelling.
+
+`countSegments` is the GSM standard's arithmetic, not an operator's invoice — ask your
+operator how they count. And Skytel and G-Mobile refuse anything over 160 characters
+outright, whatever the encoding.
+
 ### Options
 
 ```ts
@@ -170,8 +201,7 @@ numbers return `unsupported_operator`.
   None of these send APIs returns a message id or a delivery report.
 - **There is no rate limiting or deduplication in this package.** A public OTP endpoint
   needs its own per-number cooldown, or it is an open tap on your SMS bill.
-- **Long Cyrillic messages cost more.** A non-Latin SMS holds 70 characters per segment
-  against 160 for Latin, and operators bill per segment. Ask your operator how they count.
+- **Long Cyrillic messages cost more.** See [Message length and cost](#message-length-and-cost).
 
 ## Using one gateway directly
 
@@ -198,6 +228,21 @@ npm run build     # dist/ — ESM, CJS and type declarations
 
 There are no live-gateway tests: a real send costs money, reaches a real subscriber and only
 works from an allowlisted IP.
+
+### Releasing
+
+Pushing a `v*` tag publishes to npm from GitHub Actions
+([.github/workflows/publish.yml](.github/workflows/publish.yml)). The tag must match the
+version in `package.json`:
+
+```bash
+npm version patch     # bumps package.json, commits, tags
+git push --follow-tags
+```
+
+The workflow needs an `NPM_TOKEN` repository secret (an npm automation token with publish
+rights). It publishes with [provenance](https://docs.npmjs.com/generating-provenance-statements),
+which npm only accepts from a public repository.
 
 ## License
 
