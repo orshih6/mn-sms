@@ -240,10 +240,11 @@ npm version patch     # bumps package.json, commits, tags
 git push --follow-tags
 ```
 
-There is no token to manage: the package's settings on npmjs.com name this repository and
-`publish.yml` as its [trusted publisher](https://docs.npmjs.com/trusted-publishers), and the
-workflow authenticates through GitHub's OIDC. Renaming the workflow file or the repository
-means updating that setting first.
+The workflow needs an `NPM_TOKEN` repository secret: a granular npm access token with read
+and write access to this package and 2FA bypass enabled. npm caps such tokens at 90 days, so
+it has to be renewed. It publishes with
+[provenance](https://docs.npmjs.com/generating-provenance-statements), and npm may hold the
+release as staged until the package owner approves it on npmjs.com.
 
 ## License
 

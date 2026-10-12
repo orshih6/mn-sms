@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # npm trusted publishing (OIDC) — no token secret
+      id-token: write # npm provenance
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,6 +24,7 @@ jobs:
             exit 1
           fi
       - run: npm ci
-      # prepublishOnly runs typecheck, tests and build. Provenance is attached
-      # automatically when publishing through a trusted publisher.
-      - run: npm publish --access public --loglevel verbose
+      # prepublishOnly runs typecheck, tests and build.
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
