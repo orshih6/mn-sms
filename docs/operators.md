@@ -1,10 +1,12 @@
 # The operators
 
+**English** · [Монгол](operators.mn.md)
+
 What each Mongolian operator requires before you can send an SMS through its gateway, and
 exactly how each gateway behaves on the wire.
 
-This is written from integrating all four. Where something comes from an operator's own
-manual it says so; where it is observed behaviour or still unconfirmed, it says that too.
+It covers all four gateways. Where something comes from an operator's own manual it says
+so; where something is not documented or still unconfirmed, it says that too.
 The operators' manuals themselves are not redistributed here — you receive them with your
 account.
 
@@ -45,9 +47,10 @@ laptop. Put a NAT gateway or a fixed forward proxy in front and register that ad
 client's `fetch` option exists partly for this.
 
 **Each gateway delivers only to its own network.** Skytel's manual states it — `dest` "must
-be a Skytel number" — and enforces it with `ERROR: 206`. Unitel behaved the same in
-production: every accepted send was to a Unitel number. Treat a send to the wrong operator
-as a lost message, not a slow one. This is the whole reason the package routes by number.
+be a Skytel number" — and enforces it with `ERROR: 206`. The other three manuals do not
+state the rule, so assume it holds for them too unless the operator tells you otherwise.
+Treat a send to the wrong operator as a lost message, not a slow one. This is the whole
+reason the package routes by number.
 
 **The HTTP status is not the verdict.** Skytel, Mobicom and G-Mobile are plain-text gateways
 that answer `200 OK` whether they accepted the message or refused it. The body is what
@@ -193,8 +196,8 @@ this section says plainly what is not confirmed.
 
 **What you need**, all from the account letter:
 
-- The gateway address. Ours was a bare IP address over plain HTTP, with no hostname. This
-  package has **no default** for it — pass what your letter says as `baseUrl`.
+- The gateway address. It can be a bare IP address over plain HTTP rather than a hostname.
+  This package has **no default** for it — pass what your letter says as `baseUrl`.
 - `servicename` — the identifier of the service your account sends under.
 - `username` — the account name.
 - `from` — your sender short number.
@@ -231,11 +234,10 @@ is the usual answer — because nothing on the client side can fix it.
 - `Sent` — accepted.
 - Anything else — treated as refused, with the body returned verbatim.
 
-⚠️ **Unconfirmed.** The `Sent` token was taken from an existing production service that
-sends through this gateway, not from documentation, and we hold no list of Mobicom's
-refusal messages. The package therefore whitelists `Sent` and refuses to guess about the
-rest. If you see a `rejected` result whose `response` looks like a success in other words,
-please open an issue with the exact body.
+⚠️ **Unconfirmed.** The `Sent` token does not come from Mobicom documentation, and this
+package has no list of Mobicom's refusal messages. It therefore whitelists `Sent` and
+refuses to guess about the rest. If you see a `rejected` result whose `response` looks like
+a success in other words, please open an issue with the exact body.
 
 **Limits.** No length limit or timeout is documented. No length limit is enforced; the
 20-second timeout is borrowed from Skytel so a hung gateway cannot hold a request open.

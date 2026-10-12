@@ -7,7 +7,7 @@ import type { Gateway, MobicomConfig, WireRequest } from "../types";
  * same endpoint as Latin, UTF-8 percent-encoded.
  *
  * The verdict is the BODY, not the status. The accepted answer is the bare
- * word `Sent`. The refusal vocabulary is not documented anywhere we hold, so
+ * word `Sent`. The refusal vocabulary is not documented, so
  * everything that is not `Sent` — an error line, a proxy's HTML, an empty
  * body — counts as a refusal rather than being guessed at.
  */
